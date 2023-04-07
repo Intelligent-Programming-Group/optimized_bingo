@@ -88,7 +88,7 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
 
     def getRankedAlarms():
         alarmList = []
-        for t in baseQueries:
+        for t in sorted(baseQueries):
             index = bnetDict[t]
             response = float(execWrapperCmd('Q {0}'.format(index)))
             alarmList.append((t, response))
@@ -159,8 +159,8 @@ with subprocess.Popen([wrapperExecutable, fgFileName], \
                   file=statsFile)
             statsFile.flush()
 
-            with open('{0}{1}.{2}'.format(combinedPrefix, numTrue + numFalse - 1, combinedSuffix), 'w') as outFile:
-                printRankedAlarms(outFile)
+            # with open('{0}{1}.{2}'.format(combinedPrefix, numTrue + numFalse - 1, combinedSuffix), 'w') as outFile:
+            #     printRankedAlarms(outFile)
 
             logging.info('Setting tuple {0} to value {1}'.format(t0, t0 in oracleQueries))
             observe(t0, t0 in oracleQueries)

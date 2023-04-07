@@ -42,10 +42,14 @@ fi
 
 mkdir -p $PROGRAM_PATH/bnet/$AUGMENT_DIR
 
-./scripts/bnet/prune-cons/prune-cons $AUGMENT $OP_TUPLE_FILENAME \
-     < $PROGRAM_PATH/named_cons_all.txt \
-     > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
-     2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/prune-cons.log
+# ./scripts/bnet/prune-cons/prune-cons $AUGMENT $OP_TUPLE_FILENAME \
+#      < $PROGRAM_PATH/named_cons_all.txt \
+#      > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+#      2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/prune-cons.log
+
+./scripts/bnet/prune-cons/prune $OP_TUPLE_FILENAME $PROGRAM_PATH/named_cons_all.txt \
+    1> $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/prune-cons.log
 
 ./scripts/bnet/compressed/elide-edb.py \
     < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \

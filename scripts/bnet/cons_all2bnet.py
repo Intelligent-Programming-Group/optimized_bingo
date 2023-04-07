@@ -49,7 +49,7 @@ for line in sys.stdin:
     allClauses.add(clause)
     allRuleNames[clause] = ruleName
 
-    for literal in clause:
+    for literal in sorted(clause):
         allTuples.add(lit2Tuple(literal))
 
     allConsequents.add(clause2Consequent(clause))
@@ -65,21 +65,21 @@ logging.info('Discovered {0} input tuples.'.format(len(allInputTuples)))
 # 2. Narrow disjunctions
 
 # Map each tuple to the number of clauses deriving it
-tuple2ConsequentClauses = { t: set() for t in allTuples }
-for clause in allClauses:
+tuple2ConsequentClauses = { t: set() for t in sorted(allTuples) }
+for clause in sorted(allClauses):
     consequent = clause2Consequent(clause)
     tuple2ConsequentClauses[consequent].add(clause)
 
 if 'narrowor' in sys.argv:
     logging.info('Narrowing wide disjunctions.')
 
-    wideConsequents = { t for t in allConsequents if len(tuple2ConsequentClauses[t]) >= 10 }
+    wideConsequents = { t for t in sorted(allConsequents) if len(tuple2ConsequentClauses[t]) >= 10 }
 
     # Until fixpoint,
     changed = True
     while changed:
         changed = False
-        for t in wideConsequents:
+        for t in sorted(wideConsequents):
             # for each tuple t with too many derivations,
             consequentCount = len(tuple2ConsequentClauses[t])
             if consequentCount < 10: continue
@@ -121,7 +121,7 @@ if 'narrowor' in sys.argv:
             tuple2ConsequentClauses[t1] = set()
             tuple2ConsequentClauses[t2] = set()
 
-            for originalClause in originalProvingClauses:
+            for originalClause in sorted(originalProvingClauses):
                 newClause = list(originalClause)
                 if len(tuple2ConsequentClauses[t1]) < consequentCount / 2:
                     newClause[-1] = t1
@@ -150,7 +150,8 @@ if 'narrowor' in sys.argv:
 
 ########################################################################################################################
 # 3. Produce bayesian network
-
+def tostr(t):
+    return str(t)
 # 3a. Create nodes of the network
 allNodes = list(allClauses | allConsequents)
 logging.info('Discovered {0} bayesian nodes.'.format(len(allNodes)))
@@ -158,7 +159,7 @@ logging.info('Discovered {0} bayesian nodes.'.format(len(allNodes)))
 # 3b. Print dictionary file
 nodeIndex = {}
 with open(dictOutFileName, 'w') as dictOutFile:
-    for node in allNodes:
+    for node in sorted(allNodes, key=tostr):
         index = len(nodeIndex)
         nodeIndex[node] = index
         nodeStr = node if node in allTuples else ', '.join(node)
@@ -167,23 +168,24 @@ with open(dictOutFileName, 'w') as dictOutFile:
 
 # 3c. Output rules for each node
 print(len(nodeIndex))
-for node in allNodes:
+
+for node in sorted(allNodes, key=tostr):
     if node in allClauses:
         assert node not in allConsequents
         clause = node
         parents = set()
-        for lit in clause[:-1]:
+        for lit in sorted(clause[:-1]):
             t = lit2Tuple(lit)
             if t in nodeIndex:
                 parents.add(str(nodeIndex[t]))
         # nodeStr = '* {0} {1} {2} // {3}'.format(allRuleNames[node], len(parents), ' '.join(parents), node)
-        nodeStr = '* {0} {1} {2}'.format(allRuleNames[node], len(parents), ' '.join(parents))
+        nodeStr = '* {0} {1} {2}'.format(allRuleNames[node], len(parents), ' '.join(sorted(parents)))
         print(nodeStr)
     else:
         assert node in allConsequents
         t = node
         parents = [ str(nodeIndex[clause]) for clause in tuple2ConsequentClauses[node] ]
         # nodeStr = '+ {0} {1} // {2}'.format(len(parents), ' '.join(parents), node)
-        nodeStr = '+ {0} {1}'.format(len(parents), ' '.join(parents))
+        nodeStr = '+ {0} {1}'.format(len(parents), ' '.join(sorted(parents)))
         print(nodeStr)
 logging.info('Finished producing Bayesian network.')
