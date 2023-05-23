@@ -49,7 +49,7 @@ for line in open(consAllFileName):
 # Load rule probabilities
 ruleProbs = [ line.strip().split(': ') for line in open(ruleProbFileName) ]
 ruleProbs = { line[0]: float(line[1]) for line in ruleProbs }
-for clause in allClauses:
+for clause in sorted(allClauses):
     ruleName = allRuleNames[clause]
     if ruleName not in ruleProbs: ruleProbs[ruleName] = defaultRuleProb
 
@@ -92,14 +92,14 @@ logging.info('Discovered {0} input tuples.'.format(len(allInputTuples)))
 # A source clause of a tuple t is a clause with t as its consequent.
 # A sink clause of a tuple t is a clause with t as one of its antecedents.
 
-sourceClauses = { t: set() for t in allTuples }
-sinkClauses = { t: set() for t in allTuples }
-for clause in allClauses:
+sourceClauses = { t: set() for t in sorted(allTuples) }
+sinkClauses = { t: set() for t in sorted(allTuples) }
+for clause in sorted(allClauses):
     consequent = clause2Consequent(clause)
     sourceClauses[consequent].add(clause)
-    for t in clause2Antecedents(clause): sinkClauses[t].add(clause)
+    for t in sorted(clause2Antecedents(clause)): sinkClauses[t].add(clause)
 
-eliminableTuples = { t for t in allTuples if len(sourceClauses[t]) == 1 \
+eliminableTuples = { t for t in sorted(allTuples) if len(sourceClauses[t]) == 1 \
                                          and len(sinkClauses[t]) == 1 \
                                          and t not in baseQueries }
 
@@ -107,7 +107,7 @@ logging.info('Discovered {0} eliminable tuples.'.format(len(eliminableTuples)))
 
 ########################################################################################################################
 # 4. Eliminate tuples
-
+eliminableTuples = sorted(eliminableTuples)
 while len(eliminableTuples) > 0:
     t = eliminableTuples.pop()
     srcClause = sourceClauses[t].pop()
@@ -146,33 +146,33 @@ while len(eliminableTuples) > 0:
     sourceClauses[finalConsequent].add(newClause)
 
     del sinkClauses[t]
-    for tp in set(clause2Antecedents(srcClause)):
+    for tp in sorted(set(clause2Antecedents(srcClause))):
         assert not tp == t
         logging.info('Removing srcClause={0} from sinkClauses[tp={1}].'.format(', '.join(srcClause), tp))
         sinkClauses[tp].remove(srcClause)
         sinkClauses[tp].add(newClause)
-    for tp in set(clause2Antecedents(sinkClause)):
+    for tp in sorted(set(clause2Antecedents(sinkClause))):
         if tp == t: continue
         logging.info('Removing sinkClause={0} from sinkClauses[tp={1}].'.format(', '.join(sinkClause), tp))
         sinkClauses[tp].remove(sinkClause)
         sinkClauses[tp].add(newClause)
 
     assert newClause in sourceClauses[finalConsequent]
-    for tp in clause2Antecedents(newClause):
+    for tp in sorted(clause2Antecedents(newClause)):
         assert newClause in sinkClauses[tp], \
                'Unable to find newClause={0} in sinkClauses[tp={1}].'.format(', '.join(newClause), tp)
 
-logging.info('Maximum new clause length: {0}.'.format(max([ len(clause) for clause in allClauses ])))
+logging.info('Maximum new clause length: {0}.'.format(max([ len(clause) for clause in sorted(allClauses) ])))
 
 ########################################################################################################################
 # 3. Print output
 
 with open(newRuleProbFileName, 'w') as newRuleProbFile:
-    for ruleName, ruleProb in ruleProbs.items():
+    for ruleName, ruleProb in sorted(ruleProbs.items()):
         print('{0}: {1}'.format(ruleName, ruleProb), file=newRuleProbFile)
 
 with open(outputConsAllFileName, 'w') as outputConsAllFile:
-    for clause in allClauses:
+    for clause in sorted(allClauses):
         print('{0}: {1}'.format(allRuleNames[clause], ', '.join(clause)), file=outputConsAllFile)
 
 logging.info('Bye!')

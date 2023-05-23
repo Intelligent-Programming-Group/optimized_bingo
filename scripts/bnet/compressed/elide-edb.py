@@ -56,7 +56,7 @@ def simplifyClause(clause):
 
 allSimplifiedClauses = set()
 allSimplifiedRuleNames = {}
-for clause in allClauses:
+for clause in sorted(allClauses):
     sc = simplifyClause(clause)
     allSimplifiedClauses.add(sc)
     allSimplifiedRuleNames[sc] = allRuleNames[clause]
@@ -64,7 +64,7 @@ for clause in allClauses:
 ########################################################################################################################
 # 3. Print output
 
-for clause in allSimplifiedClauses:
+for clause in sorted(allSimplifiedClauses):
     ruleName = allSimplifiedRuleNames[clause]
     clauseStr = ', '.join(clause)
     print('{0}: {1}'.format(ruleName, clauseStr))

@@ -74,3 +74,63 @@ mkdir -p $PROGRAM_PATH/bnet/$AUGMENT_DIR
     < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named-bnet.out \
     > $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg \
     2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/bnet2fg.log
+
+./scripts/bnet/prune-cons/prune $OP_TUPLE_FILENAME $PROGRAM_PATH/named_cons_all.txt \
+    1> $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/prune-cons.log
+
+./scripts/bnet/compressed/elide-edb.py \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.ep \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/elide-edb.log
+
+./scripts/bnet/compressed/compress-cons-all.py \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.ep \
+    $RULE_PROB_FILENAME \
+    0.999 \
+    $OP_TUPLE_FILENAME \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/new-rule-prob.txt \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.cep \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/compress-cons-all.log
+
+./scripts/bnet/cons_all2bnet.py $PROGRAM_PATH/bnet/$AUGMENT_DIR/bnet-dict.out narrowor \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.cep \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named-bnet.out \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/cons_all2bnet.log
+
+./scripts/bnet/bnet2fg.py $PROGRAM_PATH/bnet/$AUGMENT_DIR/new-rule-prob.txt 0.999 \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named-bnet.out \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg1 \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/bnet2fg.log
+
+diff $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg1 > /dev/null
+
+./scripts/bnet/prune-cons/prune $OP_TUPLE_FILENAME $PROGRAM_PATH/named_cons_all.txt \
+    1> $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/prune-cons.log
+
+./scripts/bnet/compressed/elide-edb.py \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.pruned \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.ep \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/elide-edb.log
+
+./scripts/bnet/compressed/compress-cons-all.py \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.ep \
+    $RULE_PROB_FILENAME \
+    0.999 \
+    $OP_TUPLE_FILENAME \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/new-rule-prob.txt \
+    $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.cep \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/compress-cons-all.log
+
+./scripts/bnet/cons_all2bnet.py $PROGRAM_PATH/bnet/$AUGMENT_DIR/bnet-dict.out narrowor \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named_cons_all.txt.cep \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/named-bnet.out \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/cons_all2bnet.log
+
+./scripts/bnet/bnet2fg.py $PROGRAM_PATH/bnet/$AUGMENT_DIR/new-rule-prob.txt 0.999 \
+    < $PROGRAM_PATH/bnet/$AUGMENT_DIR/named-bnet.out \
+    > $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg1 \
+    2> $PROGRAM_PATH/bnet/$AUGMENT_DIR/bnet2fg.log
+
+diff $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg $PROGRAM_PATH/bnet/$AUGMENT_DIR/factor-graph.fg1 > /dev/null

@@ -1,7 +1,8 @@
 ## 修改内容
-1. `scripts/bnet/cons_all2bnet.py`，固定输出顺序，保证运行的稳定性。
-2. `scripts/bnet/driver.py`，删除所有 `combine*.out` 的输出，同时固定和 LibDAI 交互时 queries 的输出顺序。
-3. `scripts/bnet/prune-cons/prune.cpp` 和 `scripts/bnet/prune-cons/build.sh`，重构推导图删边算法的实现，降低运行时间和内存使用。
+1. `scripts/bnet/compressed/elide-edb.py`、`scripts/bnet/compressed/compress-cons-all.py` 和 `scripts/bnet/cons_all2bnet.py`，固定输出顺序，保证运行的稳定性。
+2. `scripts/bnet/compressed/build-bnet.sh`，每次从推导图转化为因子图时运行三次转化过程，若三次不完全相同则报错。
+3. `scripts/bnet/driver.py`，删除所有 `combined*.out` 的输出，同时固定和 LibDAI 交互时 queries 的输出顺序。
+4. `scripts/bnet/prune-cons/prune.cpp` 和 `scripts/bnet/prune-cons/build.sh`，重构推导图删边算法的实现，降低运行时间和内存使用。
 
 The Bingo Interactive Alarm Prioritization System
 =================================================

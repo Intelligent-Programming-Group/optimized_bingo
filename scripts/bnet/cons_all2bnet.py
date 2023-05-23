@@ -184,7 +184,7 @@ for node in sorted(allNodes, key=tostr):
     else:
         assert node in allConsequents
         t = node
-        parents = [ str(nodeIndex[clause]) for clause in tuple2ConsequentClauses[node] ]
+        parents = [ str(nodeIndex[clause]) for clause in sorted(tuple2ConsequentClauses[node]) ]
         # nodeStr = '+ {0} {1} // {2}'.format(len(parents), ' '.join(parents), node)
         nodeStr = '+ {0} {1}'.format(len(parents), ' '.join(sorted(parents)))
         print(nodeStr)
